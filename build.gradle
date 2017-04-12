@@ -1,0 +1,68 @@
+group 'kr.or.lightsalt'
+version project.KOTLIB_VERSION
+
+buildscript {
+	repositories {
+		jcenter()
+	}
+	dependencies {
+		classpath "com.jfrog.bintray.gradle:gradle-bintray-plugin:1.7.3"
+	}
+}
+
+apply plugin: 'groovy'
+apply plugin: 'java'
+apply plugin: 'maven'
+apply plugin: 'com.jfrog.bintray'
+
+archivesBaseName = 'gradle-plugin'
+
+repositories {
+	mavenCentral()
+}
+
+dependencies {
+	implementation gradleApi()
+	implementation localGroovy()
+	implementation 'com.google.gms:google-services:3.1.2'
+	implementation 'io.realm:realm-gradle-plugin:4.1.1'
+	implementation "org.jetbrains.kotlin:kotlin-gradle-plugin:$project.KOTLIN_VERSION"
+}
+
+task sourcesJar(type: Jar, dependsOn: classes) {
+	classifier = 'sources'
+	from sourceSets.main.allJava
+}
+
+task javadocJar(type: Jar, dependsOn: javadoc) {
+	classifier = 'javadoc'
+	javadoc.failOnError(false)
+	javadoc.source = sourceSets.main.allJava
+	from javadoc.destinationDir
+}
+
+artifacts {
+	archives sourcesJar
+	archives javadocJar
+}
+
+Properties properties = new Properties()
+try {
+	properties.load(project.rootProject.file('local.properties').newDataInputStream())
+} catch (Exception ignore) {
+}
+
+bintray {
+	user = properties.getProperty('user')
+	key =  properties.getProperty('apiKey')
+	configurations = ['archives']
+	override = true
+	pkg {
+		repo = 'kotlin'
+		name = archivesBaseName
+		userOrg = properties.getProperty('org')
+		licenses = ['Apache-2.0']
+		vcsUrl = 'https://github.com/light-and-salt/kotlib.git'
+		publish = true
+	}
+}
