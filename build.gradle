@@ -1,5 +1,10 @@
 group 'kr.or.lightsalt'
-version project.KOTLIB_VERSION
+def kotlin_ver = '+'
+try {
+	kotlin_ver = project.KOTLIN_VERSION
+	version project.KOTLIB_VERSION
+} catch (Exception ignored) {}
+
 
 buildscript {
 	repositories {
@@ -18,15 +23,17 @@ apply plugin: 'com.jfrog.bintray'
 archivesBaseName = 'gradle-plugin'
 
 repositories {
-	mavenCentral()
+	google()
+	jcenter()
 }
 
 dependencies {
-	implementation gradleApi()
-	implementation localGroovy()
-	implementation 'com.google.gms:google-services:3.1.2'
-	implementation 'io.realm:realm-gradle-plugin:4.1.1'
-	implementation "org.jetbrains.kotlin:kotlin-gradle-plugin:$project.KOTLIN_VERSION"
+	compile gradleApi()
+	compile localGroovy()
+	compile 'com.android.tools.build:gradle:3.0.1'
+	compile 'com.google.gms:google-services:3.1.2'
+	compile 'io.realm:realm-gradle-plugin:4.3.1'
+	compile "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_ver"
 }
 
 task sourcesJar(type: Jar, dependsOn: classes) {
@@ -54,7 +61,7 @@ try {
 
 bintray {
 	user = properties.getProperty('user')
-	key =  properties.getProperty('apiKey')
+	key = properties.getProperty('apiKey')
 	configurations = ['archives']
 	override = true
 	pkg {

@@ -2,11 +2,12 @@ package kr.or.lightsalt
 
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.api.UnknownProjectException
 import org.gradle.api.artifacts.DependencyResolutionListener
 import org.gradle.api.artifacts.ResolvableDependencies
 
 class KotloidPlugin implements Plugin<Project> {
-
+	@Override
 	void apply(Project project) {
 		project.extensions.create("kotloid", KotloidPluginExtension)
 		project.plugins.apply "kotlin-android"
@@ -25,20 +26,19 @@ class KotloidPlugin implements Plugin<Project> {
 				androidTest.java.srcDirs += 'src/androidTest/kotlin'
 			}
 		}
-		project.kapt {
-			arguments {
-				arg("androidManifestFile", variant.outputs[0].processResources.manifestFile)
-			}
+		try {
+			def kotloid = project.rootProject.project(':kotloid')
+			project.dependencies.add("compile", kotloid)
+		} catch (UnknownProjectException ignored) {
+			project.dependencies.add("compile", "kr.or.lightsalt:kotloid:$project.KOTLIB_VERSION")
 		}
-		def implementation = project.configurations.getByName("implementation").dependencies
-		def testImplementation = project.configurations.getByName("testImplementation").dependencies
+		def testCompile = project.configurations.getByName("testCompile").dependencies
 		project.gradle.addListener(new DependencyResolutionListener() {
 			@Override
 			void beforeResolve(ResolvableDependencies resolvableDependencies) {
 				def kotlin_ver = project.kotloid.kotlinVersion ?: project.KOTLIN_VERSION
 				project.dependencies.with {
-					implementation.add(create("kr.or.lightsalt:kotloid:$project.KOTLIB_VERSION"))
-					testImplementation.add(create("org.jetbrains.kotlin:kotlin-test-junit:$kotlin_ver"))
+					testCompile.add(create("org.jetbrains.kotlin:kotlin-test-junit:$kotlin_ver"))
 				}
 				project.gradle.removeListener(this)
 			}
