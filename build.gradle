@@ -1,12 +1,8 @@
 group 'kr.or.lightsalt'
-def kotlin_ver = '+'
-try {
-	kotlin_ver = project.KOTLIN_VERSION
-	version project.KOTLIB_VERSION
-} catch (Exception ignored) {}
-
+version project.findProperty('KOTLIB_VERSION')
 
 buildscript {
+	ext.kotlin_ver = project.findProperty('KOTLIN_VERSION') ?: '+'
 	repositories {
 		jcenter()
 	}
@@ -30,9 +26,10 @@ repositories {
 dependencies {
 	compile gradleApi()
 	compile localGroovy()
-	compile 'com.android.tools.build:gradle:3.0.1'
 	compile 'com.google.gms:google-services:3.1.2'
-	compile 'io.realm:realm-gradle-plugin:4.3.1'
+	compile 'io.realm:realm-gradle-plugin:4.2.0', {
+		exclude group: 'com.android.tools.build', module: 'gradle'
+	}
 	compile "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_ver"
 }
 
