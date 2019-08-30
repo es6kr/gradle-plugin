@@ -28,17 +28,17 @@ class KotloidPlugin implements Plugin<Project> {
 		}
 		try {
 			def kotloid = project.rootProject.project(':kotloid')
-			project.dependencies.add("compile", kotloid)
+			project.dependencies.add("implementation", kotloid)
 		} catch (UnknownProjectException ignored) {
-			project.dependencies.add("compile", "kr.or.lightsalt:kotloid:$project.KOTLIB_VERSION")
+			project.dependencies.add("implementation", "kr.or.lightsalt:kotloid:$project.KOTLIB_VERSION")
 		}
-		def testCompile = project.configurations.getByName("testCompile").dependencies
+		def testImplementation = project.configurations.getByName("testImplementation").dependencies
 		project.gradle.addListener(new DependencyResolutionListener() {
 			@Override
 			void beforeResolve(ResolvableDependencies resolvableDependencies) {
 				def kotlin_ver = project.kotloid.kotlinVersion ?: project.KOTLIN_VERSION
 				project.dependencies.with {
-					testCompile.add(create("org.jetbrains.kotlin:kotlin-test-junit:$kotlin_ver"))
+					testImplementation.add(create("org.jetbrains.kotlin:kotlin-test-junit:$kotlin_ver"))
 				}
 				project.gradle.removeListener(this)
 			}
