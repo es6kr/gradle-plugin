@@ -12,6 +12,7 @@ class KotloidPlugin implements Plugin<Project> {
 		project.extensions.create("kotloid", KotloidPluginExtension)
 		project.plugins.apply "kotlin-android"
 		project.plugins.apply "kotlin-kapt"
+		project.plugins.apply "kotlin-android-extensions"
 		project.afterEvaluate {
 			project.android.sourceSets.all { sourceSet ->
 				if (!sourceSet.name.startsWith("test")) {
@@ -30,7 +31,9 @@ class KotloidPlugin implements Plugin<Project> {
 			def kotloid = project.rootProject.project(':kotloid')
 			project.dependencies.add("implementation", kotloid)
 		} catch (UnknownProjectException ignored) {
-			project.dependencies.add("implementation", "kr.or.lightsalt:kotloid:$project.KOTLIB_VERSION")
+			project.dependencies.add("implementation", "kr.or.lightsalt:kotloid:$project.KOTLIB_VERSION") {
+				changing = true
+			}
 		}
 		def testImplementation = project.configurations.getByName("testImplementation").dependencies
 		project.gradle.addListener(new DependencyResolutionListener() {
